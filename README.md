@@ -1,155 +1,87 @@
 # Google Search Console MCP Server
 
-A tool for accessing Google Search Console using the Model Context Protocol (MCP) server.
+A Model Context Protocol (MCP) server for comprehensive Google Search Console API access, built with FastMCP.
 
 ## Features
 
-* Retrieve search analytics data (with dimension support)
-* Detailed data analysis with customizable reporting periods
-
-## Prerequisites
-
-* Python 3.10 or higher
-* Google Cloud project with Search Console API enabled
-* Service account credentials with access to Search Console
+- **Search Analytics** - Query performance data with clicks, impressions, CTR, and position metrics
+- **Site Management** - List, add, remove, and inspect Search Console properties  
+- **URL Inspection** - Check index status and crawl information for specific URLs
+- **Domain Delegation** - Support for service account impersonation across Google Workspace domains
+- **FastMCP Framework** - Built with the fast, Pythonic way to create MCP servers
+- **Type Safety** - Full type hints and Pydantic validation
+- **Comprehensive Logging** - Structured logging with loguru
 
 ## Installation
 
+### Using uv (Recommended)
+
 ```bash
-pip install mcp-server-google-search-console
+# Install globally
+uv tool install google-search-console-mcp-python
+
+# Run directly without installation
+uvx google-search-console-mcp-python
 ```
 
-Or install from source:
+### Using pip
 
 ```bash
-git clone https://github.com/yourusername/mcp-server-google-search-console.git
-cd mcp-server-google-search-console
-pip install -e .
-```
-
-## Setting Up Development Environment (uv)
-
-This project uses uv for faster package management and installation.
-
-### Installing uv and uvx
-
-First, install uv and uvx:
-
-```bash
-pip install uv uvx
-```
-
-### Creating and Managing Virtual Environments
-
-To create a new virtual environment using uv:
-
-```bash
-uv venv
-source .venv/bin/activate  # Linux/macOS
-.venv\Scripts\activate     # Windows
-```
-
-### Installing Dependencies
-
-After cloning the repository, install dependencies:
-
-```bash
-git clone https://github.com/yourusername/mcp-server-google-search-console.git
-cd mcp-server-google-search-console
-pip install -e .
-```
-
-To install the MCP package separately:
-
-```bash
-pip install "mcp[cli]"
-```
-
-### Installing Development Dependencies
-
-To install additional tools needed for development, run:
-
-```bash
-pip install -e ".[dev]"
+pip install google-search-console-mcp-python
 ```
 
 ## Authentication Setup
 
-To obtain Google Search Console API credentials:
+### Service Account Creation
 
-1. Access the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the API:
-   * Go to "APIs & Services" > "Library"
-   * Search for and enable "Search Console API"
-4. Create credentials:
-   * Go to "APIs & Services" > "Credentials"
-   * Click "Create Credentials" > "Service Account"
-   * Enter service account details
-   * Create a new key in JSON format
-   * The credentials file (.json) will be automatically downloaded
-5. Grant access:
-   * Open Search Console
-   * Add the service account email address (format: name@project.iam.gserviceaccount.com) as a property administrator
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create/select project and enable "Search Console API"  
+3. Create Service Account with JSON key
+4. In Search Console, add service account email as property owner
 
-## Usage
+### Domain-Wide Delegation (Optional)
 
-Set an environment variable to specify the path to your Google Search Console credentials file:
+For Google Workspace domains to impersonate users:
+
+1. Enable domain-wide delegation in service account settings
+2. In Google Admin Console, authorize the service account
+3. Add required scopes:
+   - `https://www.googleapis.com/auth/webmasters`
+   - `https://www.googleapis.com/auth/webmasters.readonly`
+
+## Configuration
+
+### Environment Variables
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
+export GOOGLE_APPLICATION_SUBJECT=admin@yourdomain.com  # Optional: for domain delegation
 ```
 
-### Starting the MCP Server
-
-#### Standard Method
+### Running the Server
 
 ```bash
-mcp-server-gsc
+# Using uvx (recommended)
+uvx google-search-console-mcp-python
+
+# With domain delegation
+GOOGLE_APPLICATION_SUBJECT=admin@domain.com uvx google-search-console-mcp-python
+
+# Using pip installation  
+google-search-console-mcp-python
 ```
 
-#### Using uvx
-
-With uvx, you can automate virtual environment and package installation:
-
-```bash
-# Run directly without installation
-uvx run mcp-server-gsc
-
-# Run with a specific Python version
-uvx --python=3.11 run mcp-server-gsc
-
-# Run with specified environment variables
-uvx run -e GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json mcp-server-gsc
-```
-
-### Configuration for Claude Desktop Application
-
-#### Standard Configuration
-
-```json
-{
-  "mcpServers": {
-    "gsc": {
-      "command": "mcp-server-gsc",
-      "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/credentials.json"
-      }
-    }
-  }
-}
-```
-
-#### Configuration Using uvx
+### Claude Desktop Configuration
 
 ```json
 {
   "mcpServers": {
     "gsc": {
       "command": "uvx",
-      "args": ["run", "mcp-server-gsc"],
+      "args": ["google-search-console-mcp-python"],
       "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/credentials.json"
+        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/credentials.json",
+        "GOOGLE_APPLICATION_SUBJECT": "admin@domain.com"
       }
     }
   }
@@ -159,66 +91,144 @@ uvx run -e GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json mcp-server-g
 ## Available Tools
 
 ### search_analytics
+Retrieve search performance data with comprehensive metrics and dimensions.
 
-Retrieve search performance data from Google Search Console:
+**Parameters:**
+- `site_url` (required): Property URL 
+- `start_date`, `end_date` (required): Date range (YYYY-MM-DD)
+- `dimensions`: query, page, country, device, searchAppearance
+- `search_type`: web, image, video, news, discover, googleNews
+- `aggregation_type`: auto, byPage, byProperty
+- `row_limit`: Max 25,000 rows (default: 1,000)
 
-**Required Parameters:**
-
-* `siteUrl`: Site URL (format: `http://www.example.com/` or `sc-domain:example.com`)
-* `startDate`: Start date (YYYY-MM-DD)
-* `endDate`: End date (YYYY-MM-DD)
-
-**Optional Parameters:**
-
-* `dimensions`: Comma-separated list (`query,page,country,device,searchAppearance`)
-* `type`: Search type (`web`, `image`, `video`, `news`)
-* `aggregationType`: Aggregation method (`auto`, `byNewsShowcasePanel`, `byProperty`, `byPage`)
-* `rowLimit`: Maximum number of rows to return (default: 1000)
-
-Example usage:
-
+**Example:**
 ```json
 {
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
+  "site_url": "https://example.com",
+  "start_date": "2024-01-01", 
+  "end_date": "2024-01-31",
   "dimensions": "query,country",
-  "type": "web",
-  "rowLimit": 500
+  "search_type": "web",
+  "row_limit": 5000
 }
 ```
 
-## Release Procedure
+### list_sites
+List all Search Console properties accessible to the authenticated account.
 
-This project is automatically published to PyPI when a GitHub release tag is created.
+### get_site
+Get detailed information about a specific Search Console property.
 
-To release a new version:
+**Parameters:**
+- `site_url` (required): Property URL
 
-1. Run the version update script:
-   ```bash
-   python scripts/bump_version.py [major|minor|patch]
-   ```
+### add_site  
+Add a new property to Search Console.
 
-2. Follow the displayed instructions to push to GitHub:
-   ```bash
-   git add pyproject.toml
-   git commit -m "Bump version to x.y.z"
-   git tag vx.y.z
-   git push origin main vx.y.z
-   ```
+**Parameters:**
+- `site_url` (required): Property URL to add
 
-3. Create a release on the GitHub repository page:
-   - Select tag: `vx.y.z`
-   - Enter title: `vx.y.z`
-   - Fill in release notes
-   - Click "Publish"
+### delete_site
+Remove a property from Search Console.
 
-4. GitHub Actions will be triggered and automatically publish the package to PyPI.
+**Parameters:** 
+- `site_url` (required): Property URL to remove
+
+### inspect_url
+Inspect URL index status and crawl information.
+
+**Parameters:**
+- `site_url` (required): Property containing the URL
+- `inspection_url` (required): URL to inspect  
+- `language_code` (optional): Language code (e.g., 'en-US')
+
+## Development
+
+### Setup Development Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/locomotive-agency/google-search-console-mcp-python.git
+cd google-search-console-mcp-python
+
+# Install dependencies
+uv sync
+
+# Install pre-commit hooks
+uv run pre-commit install
+```
+
+### Code Quality
+
+```bash
+# Format code
+uv run ruff format
+
+# Lint code  
+uv run ruff check
+
+# Type checking
+uv run mypy src/
+
+# Run tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=src
+```
+
+### Testing
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run specific test file
+uv run pytest tests/test_server.py -v
+
+# Run with coverage report
+uv run pytest --cov=src --cov-report=html
+```
+
+## Requirements
+
+- Python 3.12+
+- Google Cloud project with Search Console API enabled
+- Service account with Search Console access
+- uv package manager (recommended)
+
+## Architecture
+
+Built with modern Python best practices:
+
+- **FastMCP** - High-performance MCP server framework
+- **Pydantic** - Type validation and settings management  
+- **Loguru** - Structured logging
+- **Google API Client** - Official Google APIs library
+- **Async/Await** - Non-blocking I/O operations
+
+### Publishing
+
+```bash
+# Build the package
+uv build
+
+# Publish to PyPI (requires authentication)
+uv publish
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes following code quality standards
+4. Add tests for new functionality  
+5. Submit a pull request
 
 ## License
 
 MIT
 
-## Contributions
+---
 
-Contributions are welcome! Please read the contribution guidelines before submitting a pull request.
+Built with ❤️ by [Locomotive Agency](https://locomotive.agency) using the FastMCP framework.

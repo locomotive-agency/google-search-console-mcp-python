@@ -172,3 +172,19 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Development and testing files
+test_gsc_direct.py
+*.json
+!pyproject.toml
+
+# Claude Code specific
+.claude/
+CLAUDE.md
+
+# Performance benchmarks
+.benchmarks/
+
+# Old setup files (using uv build system now)
+setup.py
+MANIFEST.in
