@@ -232,3 +232,5 @@ MIT
 ---
 
 Built with ❤️ by [Locomotive Agency](https://locomotive.agency) using the FastMCP framework.
+
+Inspired by and adapted from [guchey/mcp-server-google-search-console](https://github.com/guchey/mcp-server-google-search-console).
