@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     google_credentials: FilePath = Field(
-        default=None,
         description="Path to the Google Cloud credentials file. "
         "If not provided, the GOOGLE_APPLICATION_CREDENTIALS environment variable will be used.",
         validation_alias=AliasChoices(
