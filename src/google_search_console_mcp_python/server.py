@@ -1,10 +1,15 @@
 """Google Search Console MCP Server using FastMCP."""
-
+from datetime import date
 from typing import Any
 
 from fastmcp import FastMCP
 from loguru import logger
 
+from google_search_console_mcp_python.customtypes import (
+    SearchType,
+    AggregationType,
+    Dimension,
+)
 from .gsc_client import GSCClient
 from .settings import load_settings
 
@@ -24,11 +29,11 @@ if settings.subject:
 @mcp.tool()
 async def search_analytics(
     site_url: str,
-    start_date: str,
-    end_date: str,
-    dimensions: str | None = None,
-    search_type: str | None = None,
-    aggregation_type: str | None = None,
+    start_date: date,
+    end_date: date,
+    dimensions: set[Dimension] | None = None,
+    search_type: SearchType | None = None,
+    aggregation_type: AggregationType | None = None,
     row_limit: int = 1000,
 ) -> dict[str, Any]:
     """Get search analytics data from Google Search Console.
@@ -37,7 +42,7 @@ async def search_analytics(
         site_url: The URL of the site to get data for
         start_date: The start date for the data (YYYY-MM-DD)
         end_date: The end date for the data (YYYY-MM-DD)
-        dimensions: Comma-separated list of dimensions to group by (query,page,country,device,searchAppearance)
+        dimensions: Set of dimensions to group data by (query, page, country, device, searchAppearance)
         search_type: The type of search (web, image, video, news, discover, googleNews)
         aggregation_type: The type of aggregation (auto, byPage, byProperty, byNewsShowcasePanel)
         row_limit: The maximum number of rows to return (default: 1000, max: 25000)
@@ -45,11 +50,6 @@ async def search_analytics(
     Returns:
         Dictionary containing search analytics data with metrics and dimensions
     """
-    # Parse dimensions string to list
-    dimensions_list = None
-    if dimensions:
-        dimensions_list = [dim.strip() for dim in dimensions.split(",") if dim.strip()]
-
     logger.info(
         f"Fetching search analytics for {site_url} from {start_date} to {end_date}"
     )
@@ -58,7 +58,7 @@ async def search_analytics(
         site_url=site_url,
         start_date=start_date,
         end_date=end_date,
-        dimensions=dimensions_list,
+        dimensions=dimensions,
         search_type=search_type,
         aggregation_type=aggregation_type,
         row_limit=row_limit,
