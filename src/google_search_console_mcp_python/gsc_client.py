@@ -1,6 +1,6 @@
 """Google Search Console API client."""
 
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +8,12 @@ from fastmcp.exceptions import McpError
 from google.oauth2 import service_account
 from googleapiclient.discovery import Resource, build
 from loguru import logger
+
+from google_search_console_mcp_python.customtypes import (
+    SearchType,
+    AggregationType,
+    Dimension,
+)
 
 
 class GSCClient:
@@ -61,11 +67,11 @@ class GSCClient:
     async def get_search_analytics(
         self,
         site_url: str,
-        start_date: str,
-        end_date: str,
-        dimensions: list[str] | None = None,
-        search_type: str | None = None,
-        aggregation_type: str | None = None,
+        start_date: date,
+        end_date: date,
+        dimensions: set[Dimension] | None = None,
+        search_type: SearchType | None = None,
+        aggregation_type: AggregationType | None = None,
         row_limit: int = 1000,
     ) -> dict[str, Any]:
         """Get search analytics data from Google Search Console.
@@ -85,24 +91,18 @@ class GSCClient:
         Raises:
             McpError: If the API call fails or parameters are invalid.
         """
-        # Validate dates
-        try:
-            datetime.strptime(start_date, "%Y-%m-%d")
-            datetime.strptime(end_date, "%Y-%m-%d")
-        except ValueError as e:
-            raise McpError(f"Invalid date format (must be YYYY-MM-DD): {e}")
-
         # Create request body
         request_body = {
-            "startDate": start_date,
-            "endDate": end_date,
-            "dimensions": dimensions or [],
+            "startDate": start_date.isoformat(),
+            "endDate": end_date.isoformat(),
             "rowLimit": min(row_limit, 25000),  # API maximum
         }
+        if dimensions:
+            request_body["dimensions"] = list(dimensions)
 
         # Add optional fields if provided
         if search_type:
-            valid_types = ["web", "image", "video", "news", "discover", "googleNews"]
+            valid_types = {"web", "image", "video", "news", "discover", "googleNews"}
             if search_type not in valid_types:
                 raise McpError(
                     f"Invalid search type: {search_type}. Must be one of {valid_types}"
@@ -110,7 +110,7 @@ class GSCClient:
             request_body["searchType"] = search_type
 
         if aggregation_type:
-            valid_types = ["auto", "byPage", "byProperty", "byNewsShowcasePanel"]
+            valid_types = {"auto", "byPage", "byProperty", "byNewsShowcasePanel"}
             if aggregation_type not in valid_types:
                 raise McpError(
                     f"Invalid aggregation type: {aggregation_type}. Must be one of {valid_types}"
@@ -127,7 +127,7 @@ class GSCClient:
 
             # Format the response
             formatted_response = self._format_search_analytics(
-                response, dimensions or []
+                response, dimensions or set()
             )
 
             logger.debug(
@@ -139,7 +139,7 @@ class GSCClient:
             raise McpError(f"Search analytics API call failed: {e}")
 
     def _format_search_analytics(
-        self, response: dict[str, Any], dimensions: list[str]
+        self, response: dict[str, Any], dimensions: set[str]
     ) -> dict[str, Any]:
         """Format the search analytics response.
 
