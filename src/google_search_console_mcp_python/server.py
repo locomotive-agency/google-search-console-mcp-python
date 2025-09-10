@@ -3,7 +3,6 @@
 from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import McpError
 from loguru import logger
 
 from .gsc_client import GSCClient

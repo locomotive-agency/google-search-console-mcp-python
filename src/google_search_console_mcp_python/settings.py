@@ -3,10 +3,12 @@
 from functools import cache
 from typing import Literal
 
-from pydantic import Field, AliasChoices, EmailStr, FilePath
+from pydantic import AliasChoices, EmailStr, Field, FilePath
 from pydantic_settings import BaseSettings
 
-type LogLevel = Literal["TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"]
+type LogLevel = Literal[
+    "TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"
+]
 
 
 class Settings(BaseSettings):
@@ -15,14 +17,16 @@ class Settings(BaseSettings):
     google_credentials: FilePath = Field(
         default=None,
         description="Path to the Google Cloud credentials file. "
-                    "If not provided, the GOOGLE_APPLICATION_CREDENTIALS environment variable will be used.",
-        validation_alias=AliasChoices("google_credentials_path", "google_application_credentials"),
+        "If not provided, the GOOGLE_APPLICATION_CREDENTIALS environment variable will be used.",
+        validation_alias=AliasChoices(
+            "google_credentials_path", "google_application_credentials"
+        ),
     )
 
     subject: EmailStr | None = Field(
         default=None,
         description="Email address to impersonate using domain-wide delegation. "
-                    "If not provided, the GOOGLE_APPLICATION_SUBJECT environment variable will be used.",
+        "If not provided, the GOOGLE_APPLICATION_SUBJECT environment variable will be used.",
         validation_alias=AliasChoices("google_application_subject"),
     )
 
