@@ -139,7 +139,7 @@ class GSCClient:
             raise McpError(f"Search analytics API call failed: {e}")
 
     def _format_search_analytics(
-        self, response: dict[str, Any], dimensions: set[str]
+        self, response: dict[str, Any], dimensions: set[Dimension]
     ) -> dict[str, Any]:
         """Format the search analytics response.
 
