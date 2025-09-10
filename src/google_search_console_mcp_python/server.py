@@ -3,7 +3,6 @@
 from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import McpError
 from loguru import logger
 
 from .gsc_client import GSCClient
@@ -16,15 +15,10 @@ settings = load_settings()
 mcp = FastMCP("Google Search Console")
 
 # Initialize GSC client if credentials are available
-gsc_client: GSCClient | None = None
-if settings.google_credentials:
-    try:
-        gsc_client = GSCClient(settings.google_credentials, subject=settings.subject)
-        logger.info("Google Search Console client initialized")
-        if settings.subject:
-            logger.info(f"Using domain delegation with subject: {settings.subject}")
-    except Exception as e:
-        logger.error(f"Failed to initialize Google Search Console client: {e}")
+gsc_client = GSCClient(settings.google_credentials, subject=settings.subject)
+logger.info("Google Search Console client initialized")
+if settings.subject:
+    logger.info(f"Using domain delegation with subject: {settings.subject}")
 
 
 @mcp.tool()
@@ -51,11 +45,6 @@ async def search_analytics(
     Returns:
         Dictionary containing search analytics data with metrics and dimensions
     """
-    if not gsc_client:
-        raise McpError(
-            "Google Search Console client not initialized. Check credentials configuration."
-        )
-
     # Parse dimensions string to list
     dimensions_list = None
     if dimensions:
@@ -86,11 +75,6 @@ async def list_sites() -> dict[str, list[dict[str, str]]]:
     Returns:
         Dictionary containing a list of sites with their URLs and permission levels
     """
-    if not gsc_client:
-        raise McpError(
-            "Google Search Console client not initialized. Check credentials configuration."
-        )
-
     logger.info("Fetching list of Search Console sites")
 
     sites = await gsc_client.list_sites()
@@ -109,11 +93,6 @@ async def get_site(site_url: str) -> dict[str, str]:
     Returns:
         Dictionary containing site information including URL and permission level
     """
-    if not gsc_client:
-        raise McpError(
-            "Google Search Console client not initialized. Check credentials configuration."
-        )
-
     logger.info(f"Fetching site information for: {site_url}")
 
     site_info = await gsc_client.get_site(site_url)
@@ -132,11 +111,6 @@ async def add_site(site_url: str) -> dict[str, str]:
     Returns:
         Dictionary containing the status and confirmation message
     """
-    if not gsc_client:
-        raise McpError(
-            "Google Search Console client not initialized. Check credentials configuration."
-        )
-
     logger.info(f"Adding site to Search Console: {site_url}")
 
     result = await gsc_client.add_site(site_url)
@@ -155,11 +129,6 @@ async def delete_site(site_url: str) -> dict[str, str]:
     Returns:
         Dictionary containing the status and confirmation message
     """
-    if not gsc_client:
-        raise McpError(
-            "Google Search Console client not initialized. Check credentials configuration."
-        )
-
     logger.info(f"Removing site from Search Console: {site_url}")
 
     result = await gsc_client.delete_site(site_url)
@@ -182,11 +151,6 @@ async def inspect_url(
     Returns:
         Dictionary containing URL inspection results including index status and crawl information
     """
-    if not gsc_client:
-        raise McpError(
-            "Google Search Console client not initialized. Check credentials configuration."
-        )
-
     logger.info(f"Inspecting URL: {inspection_url} in property: {site_url}")
 
     result = await gsc_client.inspect_url(
@@ -199,14 +163,6 @@ async def inspect_url(
 
 def main():
     """Main entry point for the MCP server."""
-    if not gsc_client:
-        logger.error(
-            "Google Search Console credentials not found. "
-            "Set the GOOGLE_APPLICATION_CREDENTIALS environment variable "
-            "or provide credentials via command line options."
-        )
-        exit(1)
-
     logger.info("Starting Google Search Console MCP Server")
     mcp.run()
 
