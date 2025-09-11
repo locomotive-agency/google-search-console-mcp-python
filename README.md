@@ -96,9 +96,9 @@ Retrieve search performance data with comprehensive metrics and dimensions.
 **Parameters:**
 - `site_url` (required): Property URL 
 - `start_date`, `end_date` (required): Date range (YYYY-MM-DD)
-- `dimensions`: query, page, country, device, searchAppearance
-- `search_type`: web, image, video, news, discover, googleNews
-- `aggregation_type`: auto, byPage, byProperty
+- `dimensions`: Array of dimension strings: `["query", "page", "country", "device", "searchAppearance"]`
+- `search_type`: One of: `"web"`, `"image"`, `"video"`, `"news"`, `"discover"`, `"googleNews"`
+- `aggregation_type`: One of: `"auto"`, `"byPage"`, `"byProperty"`, `"byNewsShowcasePanel"`
 - `row_limit`: Max 25,000 rows (default: 1,000)
 
 **Example:**
@@ -107,7 +107,7 @@ Retrieve search performance data with comprehensive metrics and dimensions.
   "site_url": "https://example.com",
   "start_date": "2024-01-01", 
   "end_date": "2024-01-31",
-  "dimensions": "query,country",
+  "dimensions": ["query", "country"],
   "search_type": "web",
   "row_limit": 5000
 }

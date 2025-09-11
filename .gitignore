@@ -188,3 +188,4 @@ CLAUDE.md
 # Old setup files (using uv build system now)
 setup.py
 MANIFEST.in
+.aider*
