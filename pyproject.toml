@@ -1,6 +1,6 @@
 [project]
 name = "google-search-console-mcp-python"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP Server for Google Search Console API access"
 authors = [{ name = "Locomotive Agency", email = "cloud@locomotive.agency" }]
 license = { text = "MIT" }
