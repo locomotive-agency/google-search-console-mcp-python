@@ -5,8 +5,6 @@ description = "MCP Server for Google Search Console API access"
 authors = [{ name = "Locomotive Agency", email = "cloud@locomotive.agency" }]
 license = { text = "MIT" }
 readme = "README.md"
-homepage = "https://github.com/locomotive-agency/google-search-console-mcp-python"
-repository = "https://github.com/locomotive-agency/google-search-console-mcp-python"
 keywords = ["mcp", "google-search-console", "ai", "tools", "seo"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -28,6 +26,10 @@ dependencies = [
     "google-auth-oauthlib>=1.0.0",
     "google-auth-httplib2>=0.2.0",
 ]
+
+[project.urls]
+homepage = "https://github.com/locomotive-agency/google-search-console-mcp-python"
+repository = "https://github.com/locomotive-agency/google-search-console-mcp-python"
 
 [dependency-groups]
 dev = [
