@@ -45,7 +45,7 @@ dev = [
 google-search-console-mcp-python = "google_search_console_mcp_python.server:main"
 
 [build-system]
-requires = ["uv_build>=0.8.11,<0.9.0"]
+requires = ["uv_build>=0.9.8,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.pytest.ini_options]
