@@ -4,6 +4,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 from loguru import logger
+from mcp.types import ToolAnnotations
 
 from google_search_console_mcp_python.customtypes import (
     SearchType,
@@ -26,7 +27,13 @@ if settings.subject:
     logger.info(f"Using domain delegation with subject: {settings.subject}")
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 async def search_analytics(
     site_url: str,
     start_date: date,
@@ -68,7 +75,13 @@ async def search_analytics(
     return result
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 async def list_sites() -> dict[str, list[dict[str, str]]]:
     """List all sites in your Google Search Console account.
 
@@ -83,7 +96,13 @@ async def list_sites() -> dict[str, list[dict[str, str]]]:
     return {"sites": sites}
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 async def get_site(site_url: str) -> dict[str, str]:
     """Get information about a specific site in Google Search Console.
 
@@ -101,7 +120,13 @@ async def get_site(site_url: str) -> dict[str, str]:
     return site_info
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 async def add_site(site_url: str) -> dict[str, str]:
     """Add a new site to your Google Search Console account.
 
@@ -119,7 +144,13 @@ async def add_site(site_url: str) -> dict[str, str]:
     return result
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        destructiveHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 async def delete_site(site_url: str) -> dict[str, str]:
     """Remove a site from your Google Search Console account.
 
@@ -137,7 +168,13 @@ async def delete_site(site_url: str) -> dict[str, str]:
     return result
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+)
 async def inspect_url(
     site_url: str, inspection_url: str, language_code: str | None = None
 ) -> dict[str, Any]:
